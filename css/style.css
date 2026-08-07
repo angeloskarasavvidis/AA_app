@@ -1,0 +1,437 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap');
+
+:root {
+  --pink-bg: #fde7ee;
+  --pink-bg-2: #fbd3e0;
+  --white: #ffffff;
+  --red: #e6394f;
+  --red-dark: #b81f36;
+  --pink-btn: #f2607a;
+  --text-dark: #2b0a12;
+  --text-soft: #7a2436;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-pill: 999px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--pink-bg);
+  color: var(--text-dark);
+  font-family: 'Nunito', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 8% 12%, var(--pink-bg-2) 0, transparent 40%),
+    radial-gradient(circle at 92% 85%, var(--pink-bg-2) 0, transparent 40%);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .heading-font {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+p { line-height: 1.5; }
+
+a { text-decoration: none; color: inherit; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.heart {
+  color: var(--red);
+}
+
+/* ---------- shared pieces ---------- */
+
+.pill {
+  display: inline-block;
+  background: var(--red);
+  color: var(--white);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  padding: 0.4em 1.1em;
+  border-radius: var(--radius-pill);
+  transform: rotate(-3deg);
+  box-shadow: 3px 3px 0 var(--red-dark);
+}
+
+.card {
+  background: var(--white);
+  border: 3px dashed var(--red);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--pink-btn);
+  color: var(--white);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 0.85em 1.8em;
+  box-shadow: 4px 4px 0 var(--red-dark);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--red-dark);
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 3px 3px 0 var(--red-dark);
+  flex-shrink: 0;
+}
+
+/* ---------- login page ---------- */
+
+.login-wrap {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+}
+
+.login-card .pill { margin-bottom: 1.25rem; }
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.login-logo .logo-badge {
+  width: 3.2em;
+  height: 3.2em;
+  font-size: 1.3rem;
+}
+
+.login-card h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.login-card .subtitle {
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 1.75rem;
+}
+
+.login-card .btn-primary {
+  width: 100%;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.profile-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-blue {
+  background: #4c8cef;
+  box-shadow: 4px 4px 0 #1b4fae;
+}
+
+.stars-row {
+  margin-top: 1.5rem;
+  color: var(--red);
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+}
+
+/* ---------- journey page ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.9rem 1.1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  border-bottom: 3px dashed var(--red);
+}
+
+.topbar .logo-badge {
+  width: 2.3em;
+  height: 2.3em;
+  font-size: 0.95rem;
+}
+
+.topbar .logo-text {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+}
+
+.countdown-banner {
+  text-align: center;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--red-dark);
+  background: var(--pink-bg-2);
+  padding: 0.45rem 0.75rem;
+  border-bottom: 2px dashed var(--red);
+}
+
+.month-nav {
+  position: sticky;
+  top: 58px;
+  z-index: 19;
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 0.85rem 1rem;
+  background: var(--pink-bg);
+  border-bottom: 3px dashed var(--red);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.month-nav::-webkit-scrollbar { display: none; }
+
+.month-tab {
+  scroll-snap-align: center;
+  flex: 0 0 auto;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background: var(--white);
+  color: var(--red);
+  border: 2.5px solid var(--red);
+  border-radius: var(--radius-pill);
+  padding: 0.5em 1.05em;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.month-tab .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.month-tab.active {
+  background: var(--red);
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--red-dark);
+}
+
+.month-tab.current::after {
+  content: "✨";
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  font-size: 0.9rem;
+}
+
+.content {
+  padding: 1.5rem 1.1rem 3rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.month-panel {
+  display: none;
+  animation: fadeIn 0.35s ease;
+}
+
+.month-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.month-panel .card {
+  margin-bottom: 1.25rem;
+}
+
+.month-panel .month-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.month-panel .month-range {
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.month-panel .month-desc {
+  font-size: 1.02rem;
+  white-space: pre-wrap;
+}
+
+.milestone-badge {
+  display: inline-block;
+  background: var(--pink-bg-2);
+  color: var(--red-dark);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.3em 0.8em;
+  border-radius: var(--radius-pill);
+  margin-bottom: 0.75rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+}
+
+.photo-grid img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 3px solid var(--white);
+  box-shadow: 3px 3px 0 var(--pink-bg-2);
+}
+
+.photo-empty {
+  border: 3px dashed var(--red);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.nav-arrows {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.nav-arrows button {
+  background: var(--white);
+  border: 2.5px solid var(--red);
+  color: var(--red);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 0.55em 1.1em;
+}
+
+.nav-arrows button:disabled {
+  opacity: 0.35;
+}
+
+/* lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 10, 18, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1.5rem;
+}
+
+.lightbox.open { display: flex; }
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: var(--radius-md);
+  border: 4px solid var(--white);
+}
+
+@media (min-width: 480px) {
+  .photo-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Angelos profile theme (blue) ---------- */
+
+html.theme-blue {
+  --pink-bg: #e8f1fe;
+  --pink-bg-2: #d2e4fc;
+  --red: #2e6fe0;
+  --red-dark: #1b4fae;
+  --pink-btn: #4c8cef;
+  --text-dark: #0b1e3d;
+  --text-soft: #35618f;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 1;
+}
+
+.switch-btn {
+  background: none;
+  border: 2px solid var(--red);
+  color: var(--red);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: var(--radius-pill);
+  padding: 0.4em 0.9em;
+  flex-shrink: 0;
+}
