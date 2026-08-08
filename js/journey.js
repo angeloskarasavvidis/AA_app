@@ -1,17 +1,51 @@
-(function () {
+(async function () {
   const nav = document.getElementById('monthNav');
   const content = document.getElementById('content');
-  const banner = document.getElementById('countdownBanner');
+  const streakBadge = document.getElementById('streakBadge');
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
-  const switchBtn = document.getElementById('switchBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
 
-  switchBtn.addEventListener('click', () => {
-    localStorage.removeItem('aa_profile');
+  const journeyView = document.getElementById('journeyView');
+  const profileView = document.getElementById('profileView');
+  const bottomNavBtns = document.querySelectorAll('.bottom-nav-btn');
+  const profileAvatar = document.getElementById('profileAvatar');
+  const profileName = document.getElementById('profileName');
+  const statDays = document.getElementById('statDays');
+  const statMonths = document.getElementById('statMonths');
+
+  const JOURNEY_START = new Date('2025-10-28T00:00:00');
+  const CACHE_KEY = 'aa_journey_cache_v1';
+
+  // Real auth gate: no session, no journey. Redirect before rendering
+  // anything so there's nothing to flash on screen for an unauthenticated
+  // visitor.
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) {
+    window.location.replace('index.html');
+    return;
+  }
+  const currentUser = sessionData.session.user;
+  const displayName = (currentUser.user_metadata && currentUser.user_metadata.name) || currentUser.email;
+
+  if (displayName === 'Angelos') {
+    document.documentElement.classList.add('theme-blue');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', '#e8f1fe');
+  }
+
+  signOutBtn.addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
     window.location.href = 'index.html';
   });
 
   let months = MONTHS; // local data.js, replaced in place once Supabase loads
+
+  // Cheap perceived-speed win: if we loaded real data from Supabase before
+  // (this browser session), use it for the very first paint instead of the
+  // static local fallback, while still refreshing from the network below.
+  const cached = loadCachedMonths();
+  if (cached && cached.length) months = cached;
 
   // The "current" month is simply whichever month has the highest number
   // in the data — i.e. the most recently added one. You add a new month
@@ -26,9 +60,28 @@
 
   // Only true once the user has actually picked a tab themselves — lets
   // rerender() (called once Supabase's full month list arrives) jump to
-  // the real latest month instead of freezing on whatever the smaller
-  // local fallback list guessed at first.
+  // the real latest month instead of freezing on whatever a smaller/stale
+  // starting list guessed at first.
   let userHasNavigated = false;
+
+  function loadCachedMonths() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed && parsed.months) ? parsed.months : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveCachedMonths(monthsToCache) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ months: monthsToCache, savedAt: Date.now() }));
+    } catch (e) {
+      // sessionStorage unavailable (e.g. private mode) — fine to skip caching
+    }
+  }
 
   function renderCountdown() {
     const now = new Date();
@@ -36,11 +89,15 @@
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays > 0) {
-      banner.textContent = `🎉 ${diffDays} day${diffDays === 1 ? '' : 's'} until our 10 months (${ANNIVERSARY_DAY_LABEL})!`;
+      streakBadge.textContent = `${diffDays}d`;
+      streakBadge.title = `${diffDays} day${diffDays === 1 ? '' : 's'} until our 10 months (${ANNIVERSARY_DAY_LABEL})`;
     } else if (diffDays === 0) {
-      banner.textContent = `🎉 Happy 10 months together today! 🎉`;
+      streakBadge.textContent = `🎉`;
+      streakBadge.title = `Happy 10 months together today!`;
     } else {
-      banner.textContent = `💕 ${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} since our 10-month milestone!`;
+      const daysSince = Math.abs(diffDays);
+      streakBadge.textContent = `💕 +${daysSince}d`;
+      streakBadge.title = `${daysSince} day${daysSince === 1 ? '' : 's'} since our 10-month milestone`;
     }
   }
 
@@ -204,41 +261,86 @@
     renderTabs();
     renderPanels();
     setActive(preservedIndex);
+    renderProfileStats();
+  }
+
+  // ---------------- bottom nav / profile view ----------------
+
+  function switchView(view) {
+    bottomNavBtns.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
+    if (view === 'profile') {
+      journeyView.classList.add('hidden');
+      profileView.classList.remove('hidden');
+      renderProfileStats();
+    } else {
+      profileView.classList.add('hidden');
+      journeyView.classList.remove('hidden');
+    }
+  }
+
+  bottomNavBtns.forEach((btn) => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+
+  function renderProfileStats() {
+    const daysTogether = Math.floor((Date.now() - JOURNEY_START.getTime()) / (1000 * 60 * 60 * 24));
+
+    profileAvatar.textContent = displayName.slice(0, 2);
+    profileName.textContent = displayName;
+    statDays.textContent = daysTogether;
+    statMonths.textContent = months.length;
+  }
+
+  // ---------------- Supabase load (parallelized + cached) ----------------
+
+  async function listMonthPhotos(number) {
+    const folder = `month-${String(number).padStart(2, '0')}`;
+    const { data: files, error } = await supabaseClient.storage
+      .from('photos')
+      .list(folder, { sortBy: { column: 'name', order: 'asc' } });
+    if (error || !files) return [];
+    return files
+      .filter((f) => f.name && !f.name.startsWith('.'))
+      .map((f) => supabaseClient.storage.from('photos').getPublicUrl(`${folder}/${f.name}`).data.publicUrl);
   }
 
   async function loadFromSupabase() {
     if (!supabaseClient) return;
     try {
-      const { data: rows, error } = await supabaseClient
+      // Fire the months query and photo listings for every month we
+      // already know about (local + cached) at the same time, instead of
+      // waiting for the table to answer before starting any storage
+      // calls — cuts one full network round trip off the load.
+      const monthsPromise = supabaseClient
         .from('months')
-        .select('number,title,range,description,current')
+        .select('number,title,range,description')
         .order('number', { ascending: true });
+
+      const photoPromises = new Map(months.map((m) => [m.number, listMonthPhotos(m.number)]));
+
+      const { data: rows, error } = await monthsPromise;
       if (error || !rows || rows.length === 0) throw error || new Error('No rows returned');
 
-      const merged = rows.map((row) => {
-        const local = MONTHS.find((m) => m.number === row.number) || {};
-        return { ...local, ...row, photos: local.photos || [] };
+      // Any month not already covered above (e.g. a brand-new one) starts now.
+      rows.forEach((row) => {
+        if (!photoPromises.has(row.number)) {
+          photoPromises.set(row.number, listMonthPhotos(row.number));
+        }
       });
 
-      await Promise.all(
-        merged.map(async (month) => {
-          const folder = `month-${String(month.number).padStart(2, '0')}`;
-          const { data: files, error: listErr } = await supabaseClient.storage
-            .from('photos')
-            .list(folder, { sortBy: { column: 'name', order: 'asc' } });
-          if (listErr || !files) return;
-
-          const realFiles = files.filter((f) => f.name && !f.name.startsWith('.'));
-          month.photos = realFiles.map(
-            (f) => supabaseClient.storage.from('photos').getPublicUrl(`${folder}/${f.name}`).data.publicUrl
-          );
+      const merged = await Promise.all(
+        rows.map(async (row) => {
+          const local = MONTHS.find((m) => m.number === row.number) || {};
+          const photos = await photoPromises.get(row.number);
+          return { ...local, ...row, photos };
         })
       );
 
       months = merged;
+      saveCachedMonths(merged);
       rerender();
     } catch (e) {
-      console.warn('Supabase load failed, staying on local js/data.js content:', e);
+      console.warn('Supabase load failed, staying on local content:', e);
     }
   }
 

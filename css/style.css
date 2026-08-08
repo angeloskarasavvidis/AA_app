@@ -71,7 +71,7 @@ button {
 
 .card {
   background: var(--white);
-  border: 3px dashed var(--red);
+  border: 3px solid var(--red);
   border-radius: var(--radius-lg);
   padding: 1.75rem 1.5rem;
 }
@@ -103,14 +103,16 @@ button {
   justify-content: center;
   width: 2.6em;
   height: 2.6em;
-  border-radius: 50%;
-  background: var(--red);
-  color: var(--white);
-  font-family: 'Baloo 2', cursive;
-  font-weight: 800;
-  font-size: 1.1rem;
+  border-radius: 30%;
+  background: linear-gradient(135deg, var(--pink-btn), var(--red));
   box-shadow: 3px 3px 0 var(--red-dark);
   flex-shrink: 0;
+}
+
+.logo-badge svg {
+  width: 58%;
+  height: 58%;
+  fill: var(--white);
 }
 
 /* ---------- login page ---------- */
@@ -137,25 +139,17 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 1rem;
 }
 
 .login-logo .logo-badge {
-  width: 3.2em;
-  height: 3.2em;
-  font-size: 1.3rem;
+  width: 3.4em;
+  height: 3.4em;
 }
 
 .login-card h1 {
   font-size: 2rem;
   line-height: 1.15;
-  margin-bottom: 0.75rem;
-}
-
-.login-card .subtitle {
-  color: var(--text-soft);
-  font-weight: 700;
-  font-size: 1.05rem;
   margin-bottom: 1.75rem;
 }
 
@@ -165,49 +159,36 @@ button {
   font-size: 1.15rem;
 }
 
-.profile-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.btn-blue {
-  background: #4c8cef;
-  box-shadow: 4px 4px 0 #1b4fae;
-}
-
 .hidden {
   display: none !important;
 }
 
-.pin-form {
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
-.pin-input {
+.text-input {
   width: 100%;
-  text-align: center;
-  font-family: 'Baloo 2', cursive;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  font-size: 1.8rem;
-  letter-spacing: 0.5em;
-  padding: 0.5em 0.4em 0.5em 0.6em;
-  border: 3px dashed var(--red);
+  font-size: 1rem;
+  padding: 0.85em 1em;
+  border: 3px solid var(--red);
   border-radius: var(--radius-md);
   color: var(--text-dark);
   background: var(--white);
 }
 
-.pin-input:focus {
+.text-input:focus {
   outline: none;
-  border-style: solid;
+  border-color: var(--red-dark);
+  box-shadow: 0 0 0 3px var(--pink-bg-2);
 }
 
-.pin-error {
+.form-error {
   color: var(--red-dark);
   font-weight: 700;
   font-size: 0.85rem;
@@ -215,7 +196,7 @@ button {
   display: none;
 }
 
-.pin-error.show {
+.form-error.show {
   display: block;
   animation: shake 0.4s ease;
 }
@@ -243,18 +224,16 @@ button {
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.7rem;
   padding: 0.9rem 1.1rem;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(6px);
-  border-bottom: 3px dashed var(--red);
+  border-bottom: 3px solid var(--red);
 }
 
 .topbar .logo-badge {
   width: 2.3em;
   height: 2.3em;
-  font-size: 0.95rem;
 }
 
 .topbar .logo-text {
@@ -264,15 +243,26 @@ button {
   color: var(--text-dark);
 }
 
-.countdown-banner {
-  text-align: center;
-  font-family: 'Baloo 2', cursive;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--red-dark);
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 1;
+}
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
   background: var(--pink-bg-2);
-  padding: 0.45rem 0.75rem;
-  border-bottom: 2px dashed var(--red);
+  color: var(--red-dark);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.4em 0.75em;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .month-nav {
@@ -285,7 +275,7 @@ button {
   scroll-snap-type: x proximity;
   padding: 0.85rem 1rem;
   background: var(--pink-bg);
-  border-bottom: 3px dashed var(--red);
+  border-bottom: 3px solid var(--red);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -334,7 +324,7 @@ button {
 }
 
 .content {
-  padding: 1.5rem 1.1rem 3rem;
+  padding: 1.5rem 1.1rem calc(6rem + env(safe-area-inset-bottom));
   max-width: 640px;
   margin: 0 auto;
 }
@@ -402,7 +392,7 @@ button {
 }
 
 .photo-empty {
-  border: 3px dashed var(--red);
+  border: 3px solid var(--red);
   border-radius: var(--radius-md);
   padding: 1.5rem 1rem;
   text-align: center;
@@ -456,6 +446,129 @@ button {
   .photo-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* ---------- bottom nav ---------- */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 3px solid var(--red);
+  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.4rem 0;
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.bottom-nav-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.bottom-nav-btn.active {
+  color: var(--red);
+  background: var(--pink-bg-2);
+}
+
+/* ---------- profile view ---------- */
+
+#profileView .card + .card {
+  margin-top: 1.25rem;
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 4.2em;
+  height: 4.2em;
+  margin: 0 auto 0.75rem;
+  border-radius: 30%;
+  background: linear-gradient(135deg, var(--pink-btn), var(--red));
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.4rem;
+  box-shadow: 4px 4px 0 var(--red-dark);
+}
+
+.profile-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile-tagline {
+  color: var(--text-soft);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.stat {
+  flex: 1;
+  max-width: 140px;
+  background: var(--pink-bg-2);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 0.5rem;
+}
+
+.stat-value {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--red-dark);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sign-out-btn {
+  width: 100%;
+  justify-content: center;
+  background: var(--white);
+  color: var(--red);
+  border: 2.5px solid var(--red);
+  box-shadow: none;
+}
+
+.sign-out-btn:active {
+  transform: none;
+  background: var(--pink-bg-2);
+}
+
 /* ---------- Angelos profile theme (blue) ---------- */
 
 html.theme-blue {
@@ -466,23 +579,4 @@ html.theme-blue {
   --pink-btn: #4c8cef;
   --text-dark: #0b1e3d;
   --text-soft: #35618f;
-}
-
-.topbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  flex: 1;
-}
-
-.switch-btn {
-  background: none;
-  border: 2px solid var(--red);
-  color: var(--red);
-  font-family: 'Baloo 2', cursive;
-  font-weight: 700;
-  font-size: 0.8rem;
-  border-radius: var(--radius-pill);
-  padding: 0.4em 0.9em;
-  flex-shrink: 0;
 }

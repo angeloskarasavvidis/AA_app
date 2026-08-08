@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// The double A journey - month data
+// Couplebook - month data
 //
 // How to add a month's memories:
 //   1. Drop your photos into  photos/month-XX/  (e.g. photos/month-01/1.jpg)

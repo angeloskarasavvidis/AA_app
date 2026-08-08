@@ -4,48 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#fde7ee" />
-  <title>The double A journey &lt;3</title>
+  <title>Couplebook</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <script src="js/config.js"></script>
   <div class="login-wrap">
     <div class="card login-card">
-      <span class="pill" id="loginPill">Enter the code 🔒</span>
+      <span class="pill">Sign in</span>
 
       <div class="login-logo">
-        <span class="logo-badge">AA</span>
+        <span class="logo-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-6.716-4.35-9.428-8.485C.678 9.5 1.5 5.5 5 4.2c2.1-.8 4.2.1 5.5 2.1 1-2 3.1-2.9 5.2-2.1 3.5 1.3 4.3 5.3 2.4 8.3C18.7 16.65 12 21 12 21z"/></svg>
+        </span>
       </div>
 
-      <h1>The double A<br />journey <span class="heart">&lt;3</span></h1>
-      <p class="subtitle">9 months down, forever to go 💕</p>
+      <h1>Couplebook <span class="heart">&lt;3</span></h1>
 
-      <form class="pin-form" id="pinForm">
+      <form class="login-form" id="loginForm">
         <input
-          type="tel"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          maxlength="4"
-          class="pin-input"
-          id="pinInput"
-          placeholder="••••"
-          autocomplete="off"
+          type="email"
+          class="text-input"
+          id="emailInput"
+          placeholder="Email"
+          autocomplete="username"
           autofocus
+          required
         />
-        <button type="submit" class="btn-primary">Unlock <span class="heart">🔓</span></button>
-        <p class="pin-error" id="pinError">Nope, try again ✗</p>
+        <input
+          type="password"
+          class="text-input"
+          id="passwordInput"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit" class="btn-primary" id="loginSubmitBtn">Sign in <span class="heart">🔓</span></button>
+        <p class="form-error" id="loginError">That didn't work — check your email &amp; password.</p>
       </form>
-
-      <div class="profile-row hidden" id="profileRow">
-        <button class="btn-primary profile-btn" data-name="Aliki">Aliki</button>
-        <button class="btn-primary profile-btn btn-blue" data-name="Angelos">Angelos</button>
-      </div>
 
       <div class="stars-row">★ ★ ★ ★ ★</div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-client.js"></script>
   <script src="js/login.js"></script>
 </body>
 </html>

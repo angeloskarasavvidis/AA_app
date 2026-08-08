@@ -1,4 +1,4 @@
-# The double A journey <3
+# Couplebook <3
 
 A mobile-optimized, goofy-cartoon-themed website for Angelos & Aliki — a
 month-by-month journey of the two of you, with photos and stories.
@@ -6,34 +6,17 @@ month-by-month journey of the two of you, with photos and stories.
 ## Structure
 
 ```
-index.html          Login page — tap "Aliki" or "Angelos" (no password)
-journey.html         Main page with the swipeable month tabs
+index.html          Login page — real email/password sign-in (Supabase Auth)
+journey.html         Main page with the swipeable month tabs + bottom nav
 css/style.css         All styling (pink/red theme, blue theme for Angelos)
 js/data.js             Local fallback data (used if Supabase is unreachable)
 js/supabase-client.js  Supabase project URL + publishable key, creates the client
-js/login.js            Stores the chosen profile, redirects to journey.html
-js/journey.js           Renders tabs/panels, fetches from Supabase, swipe/lightbox
-js/config.js            Gitignored, generated — holds PASSCODE, see below
+js/login.js            Handles sign-in, redirects to journey.html
+js/journey.js           Auth guard, tabs/panels, Supabase fetch, swipe/lightbox
 photos/month-01/ ...    Local fallback photos (only used if Supabase is down)
 photos/month-10/
 supabase/schema.sql     Run once in the Supabase SQL Editor to set up the DB + bucket
-scripts/build-config.js Generates js/config.js from .env
-.env.example             Copy to .env and fill in your own PASSCODE
 ```
-
-## First-time setup
-
-`js/config.js` is gitignored (it holds the passcode) so it isn't in the
-repo. After cloning, generate it once:
-
-```bash
-cp .env.example .env   # then edit .env and set PASSCODE
-node scripts/build-config.js
-```
-
-Re-run `node scripts/build-config.js` any time you change `.env`. Without
-this step the login page's PIN check will fail (`PASSCODE is not defined`)
-because `js/config.js` won't exist yet.
 
 ## Data: Supabase-backed, dashboard-managed
 
@@ -59,40 +42,80 @@ If Supabase is ever unreachable, the app falls back to whatever is in
 copy isn't kept in sync automatically, so treat Supabase as the source of
 truth going forward.
 
-## Login / profiles
+## Login: real Supabase Auth
 
-The login page is gated by a shared 4-digit passcode, read from `PASSCODE`
-in `js/config.js` (generated from `.env` — see "First-time setup" above).
-Enter it correctly and the two profile buttons — "Aliki" and "Angelos" —
-appear; there's no sign-up option, so those are the only two profiles that
-can ever exist. Tapping one stores the name in `localStorage` and opens the
-journey. Picking "Angelos" recolors the whole journey page blue (via a
-`theme-blue` class that overrides the same CSS variables); "Aliki" keeps the
-default pink/red look. A "Switch" button in the journey header clears the
-stored profile and returns to the (passcode-gated) login page. Visiting
-`journey.html` directly without picking a profile first bounces you back to
-`index.html`.
+Login is backed by actual Supabase Auth accounts — email + password,
+verified server-side. There is no sign-up page anywhere in the app, so the
+only accounts that can ever exist are the ones created directly in the
+Supabase dashboard.
 
-Worth knowing: this is a static site with no backend auth, so the passcode
-check happens entirely in the browser. Keeping it in `.env`/`js/config.js`
-(both gitignored) keeps it out of the git history and off GitHub — but the
-live page still has to send the plaintext value to the browser to check it,
-so anyone who opens dev tools on the deployed site can still read it, and
-anyone could set `localStorage.aa_profile` directly to skip the gate
-entirely. This setup stops casual link-sharing and keeps the repo clean; it
-is not a real security boundary. If this ever needs to survive a public
-link against a determined snoop, swap it for real Supabase Auth accounts
-instead.
+**One-time setup, per account (do this for both of you):**
+
+1. Dashboard → **Authentication → Users → Add user** — set an email and a
+   password (check "Auto Confirm User"). This step needs no code changes;
+   any email/password works with the login form as-is.
+2. Tag the account with a display name so the app knows who's who, via SQL
+   Editor:
+   ```sql
+   update auth.users
+   set raw_user_meta_data = raw_user_meta_data || '{"name":"Aliki"}'::jsonb
+   where email = 'the-email-you-used';
+   ```
+   Use `"Angelos"` for the other account. The app reads this `name` to
+   decide the color theme (`"Angelos"` → blue, anything else → pink/red) and
+   to label the Profile tab.
+3. Dashboard → **Authentication → Settings** → turn **off** "Allow new
+   users to sign up". This is what actually prevents a third profile from
+   ever being created — the app having no sign-up UI is necessary but not
+   sufficient, since anyone with the (public, client-side) anon key could
+   otherwise call the sign-up API directly.
+
+**How it behaves:** `journey.html` calls `supabaseClient.auth.getSession()`
+before rendering anything; no session means an immediate redirect to
+`index.html`, so there's nothing to flash for a signed-out visitor.
+Sessions persist in the browser (via `localStorage`, managed by
+`supabase-js` itself), so you only sign in again after explicitly hitting
+**Sign out** on the Profile tab or clearing site data. Switching who's
+"logged in" now genuinely requires the other person's password — there's no
+more one-tap switching, which is the actual security upgrade here over the
+previous shared-passcode approach.
 
 Months are already dated from Oct 28, 2025 (month 1) through the 10-month
-milestone on Aug 28, 2026 (month 10). The countdown banner at the top counts
-down to that date automatically.
+milestone on Aug 28, 2026 (month 10). The streak badge in the top-right of
+the header (🔥 + day count) counts down to that date automatically, flips to
+a 🎉 on the day itself, then counts up (💕 +Nd) afterward. Tap-and-hold (or
+hover on desktop) for the full sentence via its tooltip.
 
 The tab you land on by default, the tab sparkle, and the "✨ Current month"
 badge are all just whichever row has the highest `number` in the `months`
 table — not the `current` column, and not a calendar calculation. Add a new
 month row (e.g. number 12) when that month starts, and the app points at it
 automatically. No manual flag to flip, no date math to keep correct.
+
+## Navigation
+
+The journey page has a fixed bottom nav with two tabs:
+
+- **Journey** — header with the streak badge, month tabs, and month content
+  (the original page).
+- **Profile** — an avatar/name card for whoever's signed in, two live stats
+  (days together, since Oct 28, 2025; months logged, just `months.length`),
+  and a **Sign out** button.
+
+## Performance
+
+Two things keep the Supabase load feeling fast:
+
+- **Parallel fetch** — `js/journey.js` fires the `months` table query and
+  the photo-folder `list()` calls for every already-known month at the same
+  time, instead of waiting for the table to respond before starting any
+  storage requests. Any brand-new month (not yet known locally) gets its
+  photo listing kicked off as soon as the table response reveals it.
+- **Session cache** — the fully resolved month list (text + public photo
+  URLs) is cached in `sessionStorage`. On the very first load in a browser
+  tab it still has to hit the network, but reopening/reloading within the
+  same session paints instantly from cache while a fresh copy loads quietly
+  in the background.
 
 ## Running it locally
 
