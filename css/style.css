@@ -177,6 +177,57 @@ button {
   box-shadow: 4px 4px 0 #1b4fae;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.pin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.pin-input {
+  width: 100%;
+  text-align: center;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 0.5em;
+  padding: 0.5em 0.4em 0.5em 0.6em;
+  border: 3px dashed var(--red);
+  border-radius: var(--radius-md);
+  color: var(--text-dark);
+  background: var(--white);
+}
+
+.pin-input:focus {
+  outline: none;
+  border-style: solid;
+}
+
+.pin-error {
+  color: var(--red-dark);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 0;
+  display: none;
+}
+
+.pin-error.show {
+  display: block;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
 .stars-row {
   margin-top: 1.5rem;
   color: var(--red);

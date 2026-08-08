@@ -11,7 +11,7 @@
 <body>
   <div class="login-wrap">
     <div class="card login-card">
-      <span class="pill">Tap your name</span>
+      <span class="pill" id="loginPill">Enter the code 🔒</span>
 
       <div class="login-logo">
         <span class="logo-badge">AA</span>
@@ -20,7 +20,23 @@
       <h1>The double A<br />journey <span class="heart">&lt;3</span></h1>
       <p class="subtitle">9 months down, forever to go 💕</p>
 
-      <div class="profile-row">
+      <form class="pin-form" id="pinForm">
+        <input
+          type="tel"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="4"
+          class="pin-input"
+          id="pinInput"
+          placeholder="••••"
+          autocomplete="off"
+          autofocus
+        />
+        <button type="submit" class="btn-primary">Unlock <span class="heart">🔓</span></button>
+        <p class="pin-error" id="pinError">Nope, try again ✗</p>
+      </form>
+
+      <div class="profile-row hidden" id="profileRow">
         <button class="btn-primary profile-btn" data-name="Aliki">Aliki</button>
         <button class="btn-primary profile-btn btn-blue" data-name="Angelos">Angelos</button>
       </div>

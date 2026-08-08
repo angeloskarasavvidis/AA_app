@@ -43,13 +43,23 @@ truth going forward.
 
 ## Login / profiles
 
-There's no password — tapping a name on the login page stores it in
-`localStorage` and opens the journey. Picking "Angelos" recolors the whole
-journey page blue (via a `theme-blue` class that overrides the same CSS
-variables); "Aliki" keeps the default pink/red look. A "Switch" button in
-the journey header clears the stored profile and returns to the login page.
-Visiting `journey.html` directly without picking a profile first bounces you
-back to `index.html`.
+The login page is gated by a shared 4-digit passcode (set as the `PASSCODE`
+constant at the top of `js/login.js`). Enter it correctly and the two
+profile buttons — "Aliki" and "Angelos" — appear; there's no sign-up option,
+so those are the only two profiles that can ever exist. Tapping one stores
+the name in `localStorage` and opens the journey. Picking "Angelos" recolors
+the whole journey page blue (via a `theme-blue` class that overrides the
+same CSS variables); "Aliki" keeps the default pink/red look. A "Switch"
+button in the journey header clears the stored profile and returns to the
+(passcode-gated) login page. Visiting `journey.html` directly without
+picking a profile first bounces you back to `index.html`.
+
+Worth knowing: this is a static site with no backend auth, so the passcode
+check happens entirely in the browser — anyone determined enough could read
+`js/login.js` and see the code, or set `localStorage.aa_profile` directly to
+skip the gate. It's meant to keep out casual link-sharing, not to be a real
+security boundary. If this ever needs to survive a public link, swap it for
+real Supabase Auth accounts instead.
 
 Months are already dated from Oct 28, 2025 (month 1) through the 10-month
 milestone on Aug 28, 2026 (month 10, marked "current"). The countdown banner
