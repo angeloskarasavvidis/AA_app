@@ -1,4 +1,4 @@
-const PASSCODE = '2810';
+// PASSCODE comes from js/config.js (generated from .env, gitignored)
 
 const pinForm = document.getElementById('pinForm');
 const pinInput = document.getElementById('pinInput');
