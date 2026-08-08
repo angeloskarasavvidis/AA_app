@@ -41,8 +41,9 @@ Month text and photos live in Supabase, not in this repo, so you can update
 either from your phone without touching code:
 
 - **Text** — Supabase dashboard → **Table Editor** → `months` table. Edit
-  `title`, `range`, `description`, or `current` directly in the spreadsheet
-  view.
+  `title`, `range`, or `description` directly in the spreadsheet view. (The
+  `current` column still exists but is no longer read by the app — see
+  below.)
 - **Photos** — Supabase dashboard → **Storage** → `photos` bucket →
   `month-XX` folder. Drag photos in; the app lists whatever's in each folder
   automatically, no filenames to register anywhere.
@@ -84,8 +85,17 @@ link against a determined snoop, swap it for real Supabase Auth accounts
 instead.
 
 Months are already dated from Oct 28, 2025 (month 1) through the 10-month
-milestone on Aug 28, 2026 (month 10, marked "current"). The countdown banner
-at the top counts down to that date automatically.
+milestone on Aug 28, 2026 (month 10). The countdown banner at the top counts
+down to that date automatically.
+
+The tab you land on by default, the tab sparkle, and the "✨ Current month"
+badge are all computed live in `js/journey.js` from today's date against
+that same Oct 28, 2025 / 28th-of-the-month cadence — not from the `current`
+column. This means it's always correct with zero manual upkeep, but it also
+means once you're past Aug 28, 2026 the app has no month 11+ to advance
+into, so it'll just keep showing month 10 (the latest one that exists) until
+you add more months to the `months` table and extend `js/journey.js`'s month
+count accordingly.
 
 ## Running it locally
 

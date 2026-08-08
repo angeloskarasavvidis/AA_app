@@ -12,7 +12,29 @@
   });
 
   let months = MONTHS; // local data.js, replaced in place once Supabase loads
-  let activeIndex = months.findIndex((m) => m.current);
+
+  // Each month runs from the 28th to the 28th (see js/data.js). Rather than
+  // relying on a manually-toggled `current` flag that drifts if nobody
+  // remembers to update it, work out "today's" month straight from the
+  // calendar so this is always correct with zero upkeep.
+  const JOURNEY_START = new Date('2025-10-28T00:00:00');
+
+  function monthEndDate(n) {
+    const d = new Date(JOURNEY_START);
+    d.setMonth(d.getMonth() + n);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
+
+  function todaysMonthNumber(totalMonths) {
+    const now = new Date();
+    for (let n = 1; n <= totalMonths; n++) {
+      if (now.getTime() <= monthEndDate(n).getTime()) return n;
+    }
+    return totalMonths; // past the last month we have data for — show the latest
+  }
+
+  let activeIndex = months.findIndex((m) => m.number === todaysMonthNumber(months.length));
   if (activeIndex === -1) activeIndex = months.length - 1;
 
   function renderCountdown() {
@@ -36,9 +58,10 @@
 
   function renderTabs() {
     nav.innerHTML = '';
+    const todayNumber = todaysMonthNumber(months.length);
     months.forEach((month, i) => {
       const btn = document.createElement('button');
-      btn.className = 'month-tab' + (month.current ? ' current' : '');
+      btn.className = 'month-tab' + (month.number === todayNumber ? ' current' : '');
       btn.textContent = `Month ${month.number}`;
       btn.dataset.index = i;
       btn.addEventListener('click', () => setActive(i));
@@ -48,6 +71,7 @@
 
   function renderPanels() {
     content.innerHTML = '';
+    const todayNumber = todaysMonthNumber(months.length);
     months.forEach((month, i) => {
       const panel = document.createElement('section');
       panel.className = 'month-panel';
@@ -56,7 +80,7 @@
       const card = document.createElement('div');
       card.className = 'card';
 
-      if (month.current) {
+      if (month.number === todayNumber) {
         const badge = document.createElement('span');
         badge.className = 'milestone-badge';
         badge.textContent = '✨ Current month';
