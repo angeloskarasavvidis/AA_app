@@ -13,29 +13,22 @@
 
   let months = MONTHS; // local data.js, replaced in place once Supabase loads
 
-  // Each month runs from the 28th to the 28th (see js/data.js). Rather than
-  // relying on a manually-toggled `current` flag that drifts if nobody
-  // remembers to update it, work out "today's" month straight from the
-  // calendar so this is always correct with zero upkeep.
-  const JOURNEY_START = new Date('2025-10-28T00:00:00');
-
-  function monthEndDate(n) {
-    const d = new Date(JOURNEY_START);
-    d.setMonth(d.getMonth() + n);
-    d.setHours(23, 59, 59, 999);
-    return d;
+  // The "current" month is simply whichever month has the highest number
+  // in the data — i.e. the most recently added one. You add a new month
+  // row/folder when that month starts, so this always matches reality
+  // with zero manual flags and no assumptions about exact calendar dates.
+  function latestMonthNumber(monthsList) {
+    return monthsList.reduce((max, m) => Math.max(max, m.number), 0);
   }
 
-  function todaysMonthNumber(totalMonths) {
-    const now = new Date();
-    for (let n = 1; n <= totalMonths; n++) {
-      if (now.getTime() <= monthEndDate(n).getTime()) return n;
-    }
-    return totalMonths; // past the last month we have data for — show the latest
-  }
-
-  let activeIndex = months.findIndex((m) => m.number === todaysMonthNumber(months.length));
+  let activeIndex = months.findIndex((m) => m.number === latestMonthNumber(months));
   if (activeIndex === -1) activeIndex = months.length - 1;
+
+  // Only true once the user has actually picked a tab themselves — lets
+  // rerender() (called once Supabase's full month list arrives) jump to
+  // the real latest month instead of freezing on whatever the smaller
+  // local fallback list guessed at first.
+  let userHasNavigated = false;
 
   function renderCountdown() {
     const now = new Date();
@@ -58,20 +51,23 @@
 
   function renderTabs() {
     nav.innerHTML = '';
-    const todayNumber = todaysMonthNumber(months.length);
+    const todayNumber = latestMonthNumber(months);
     months.forEach((month, i) => {
       const btn = document.createElement('button');
       btn.className = 'month-tab' + (month.number === todayNumber ? ' current' : '');
       btn.textContent = `Month ${month.number}`;
       btn.dataset.index = i;
-      btn.addEventListener('click', () => setActive(i));
+      btn.addEventListener('click', () => {
+        userHasNavigated = true;
+        setActive(i);
+      });
       nav.appendChild(btn);
     });
   }
 
   function renderPanels() {
     content.innerHTML = '';
-    const todayNumber = todaysMonthNumber(months.length);
+    const todayNumber = latestMonthNumber(months);
     months.forEach((month, i) => {
       const panel = document.createElement('section');
       panel.className = 'month-panel';
@@ -134,12 +130,18 @@
       const prevBtn = document.createElement('button');
       prevBtn.textContent = '← Prev';
       prevBtn.disabled = i === 0;
-      prevBtn.addEventListener('click', () => setActive(i - 1));
+      prevBtn.addEventListener('click', () => {
+        userHasNavigated = true;
+        setActive(i - 1);
+      });
 
       const nextBtn = document.createElement('button');
       nextBtn.textContent = 'Next →';
       nextBtn.disabled = i === months.length - 1;
-      nextBtn.addEventListener('click', () => setActive(i + 1));
+      nextBtn.addEventListener('click', () => {
+        userHasNavigated = true;
+        setActive(i + 1);
+      });
 
       arrows.appendChild(prevBtn);
       arrows.appendChild(nextBtn);
@@ -186,6 +188,7 @@
     if (touchStartX === null) return;
     const deltaX = e.changedTouches[0].screenX - touchStartX;
     if (Math.abs(deltaX) > 60) {
+      userHasNavigated = true;
       if (deltaX < 0) setActive(activeIndex + 1);
       else setActive(activeIndex - 1);
     }
@@ -193,6 +196,10 @@
   }, { passive: true });
 
   function rerender() {
+    if (!userHasNavigated) {
+      activeIndex = months.findIndex((m) => m.number === latestMonthNumber(months));
+      if (activeIndex === -1) activeIndex = months.length - 1;
+    }
     const preservedIndex = Math.min(activeIndex, months.length - 1);
     renderTabs();
     renderPanels();

@@ -89,13 +89,10 @@ milestone on Aug 28, 2026 (month 10). The countdown banner at the top counts
 down to that date automatically.
 
 The tab you land on by default, the tab sparkle, and the "✨ Current month"
-badge are all computed live in `js/journey.js` from today's date against
-that same Oct 28, 2025 / 28th-of-the-month cadence — not from the `current`
-column. This means it's always correct with zero manual upkeep, but it also
-means once you're past Aug 28, 2026 the app has no month 11+ to advance
-into, so it'll just keep showing month 10 (the latest one that exists) until
-you add more months to the `months` table and extend `js/journey.js`'s month
-count accordingly.
+badge are all just whichever row has the highest `number` in the `months`
+table — not the `current` column, and not a calendar calculation. Add a new
+month row (e.g. number 12) when that month starts, and the app points at it
+automatically. No manual flag to flip, no date math to keep correct.
 
 ## Running it locally
 
