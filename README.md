@@ -16,7 +16,19 @@ js/journey.js           Auth guard, tabs/panels, Supabase fetch, swipe/lightbox
 photos/month-01/ ...    Local fallback photos (only used if Supabase is down)
 photos/month-10/
 supabase/schema.sql     Run once in the Supabase SQL Editor to set up the DB + bucket
+manifest.json            Web app manifest — name, theme color, home screen icons
+assets/icon-*.png        Home screen icons (32/180/192/512) — a rubber duck
 ```
+
+## Home screen icon
+
+"Add to Home Screen" (iOS) or "Install app" (Android/Chrome) now uses a
+gradient-background rubber duck icon instead of a generic page screenshot —
+wired via `apple-touch-icon` (iOS) and `manifest.json` (Android/Chrome),
+both linked from `<head>` in both pages. `apple-mobile-web-app-capable`
+also makes it launch full-screen (no Safari chrome) when opened from the
+home screen on iOS. This is deliberately a different mark from the in-app
+heart logo (topbar/login) — the duck is just the home screen icon.
 
 ## Data: Supabase-backed, dashboard-managed
 
