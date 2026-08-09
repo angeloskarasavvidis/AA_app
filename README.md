@@ -171,6 +171,25 @@ Two things keep the Supabase load feeling fast:
   tab it still has to hit the network, but reopening/reloading within the
   same session paints instantly from cache while a fresh copy loads quietly
   in the background.
+- **Resized photos** — by far the biggest lever. Photos uploaded straight
+  from a phone camera are several MB each; one month's folder measured
+  120MB+ across ~60 photos. `js/journey.js` rewrites every Supabase Storage
+  photo URL through Supabase's built-in image transform
+  (`/storage/v1/render/image/public/...`) instead of linking the original:
+  grid thumbnails request a 500×500 cropped/compressed version (~30KB,
+  matching the crop the CSS already does via `object-fit: cover`, so no
+  bytes are wasted on parts that get cropped away), and the lightbox
+  requests a 1400×1400-bounded version only when you actually tap a photo
+  open. Local fallback photos (`photos/` in this repo) pass through
+  untouched since they're already small. The Supabase REST/Storage queries
+  themselves were never the bottleneck — timed at 150–280ms — the multi-MB
+  originals were.
+
+  This uses Supabase's image transformation feature, which has a
+  usage-based free quota beyond which it's a paid add-on; check your
+  project's usage dashboard if you're curious. Transformed results are
+  cached at Supabase's edge after the first request, so repeat views of the
+  same photo shouldn't re-count against it.
 
 ## Running it locally
 

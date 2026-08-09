@@ -114,6 +114,27 @@
     return `photos/month-${String(month.number).padStart(2, '0')}/${photo}`;
   }
 
+  // Photos come straight from phone cameras (multiple MB each). Supabase's
+  // built-in image transform serves a resized/recompressed version on the
+  // fly from the same file, no re-upload needed. Only applies to real
+  // Supabase Storage URLs — local fallback photos (js/data.js) pass through
+  // untouched since they're already small and served locally.
+  function transformedUrl(url, params) {
+    const marker = '/storage/v1/object/public/';
+    const idx = url.indexOf(marker);
+    if (idx === -1) return url;
+    const base = url.slice(0, idx) + '/storage/v1/render/image/public/' + url.slice(idx + marker.length);
+    return `${base}?${new URLSearchParams(params).toString()}`;
+  }
+
+  function photoThumbSrc(month, photo) {
+    return transformedUrl(photoSrc(month, photo), { width: 500, height: 500, resize: 'cover', quality: 70 });
+  }
+
+  function photoFullSrc(month, photo) {
+    return transformedUrl(photoSrc(month, photo), { width: 1400, height: 1400, resize: 'contain', quality: 80 });
+  }
+
   function renderTabs() {
     nav.innerHTML = '';
     const todayNumber = latestMonthNumber(months);
@@ -173,10 +194,10 @@
         grid.className = 'photo-grid';
         month.photos.forEach((photo) => {
           const img = document.createElement('img');
-          img.src = photoSrc(month, photo);
+          img.src = photoThumbSrc(month, photo);
           img.alt = `${month.title} photo`;
           img.loading = 'lazy';
-          img.addEventListener('click', () => openLightbox(img.src));
+          img.addEventListener('click', () => openLightbox(photoFullSrc(month, photo)));
           grid.appendChild(img);
         });
         photoCard.appendChild(grid);
