@@ -16,9 +16,34 @@ js/journey.js           Auth guard, tabs/panels, Supabase fetch, swipe/lightbox
 photos/month-01/ ...    Local fallback photos (only used if Supabase is down)
 photos/month-10/
 supabase/schema.sql     Run once in the Supabase SQL Editor to set up the DB + bucket
+supabase/wall_schema.sql Run once to set up the Wall's table + policies (see below)
 manifest.json            Web app manifest — name, theme color, home screen icons
 assets/icon-*.png        Home screen icons (32/180/192/512) — a rubber duck
 ```
+
+## Wall: shared notes, the first read/write feature
+
+The **Wall** tab (bottom nav) is a shared corkboard — either of you can leave
+a note, pin/unpin any note to keep it at the top, or delete it. Unlike
+everything else in the app so far, this actually **writes** to Supabase
+from the browser, not just reads.
+
+**Setup:** run `supabase/wall_schema.sql` once in the SQL Editor. Unlike
+`schema.sql`, it never drops the table, so re-running it is safe and won't
+wipe existing notes. It also enables Realtime on the table — if you're both
+on the Wall tab at once, a note from one of you appears for the other
+without a manual refresh.
+
+**Why this is safe to expose from the client:** the table's Row Level
+Security policies only grant access `to authenticated` (i.e. a real signed-in
+session — see the Login section above) — there is zero anon/public access,
+matching the auth model everything else already relies on. Within that,
+posting is locked to yourself (`auth.uid() = user_id`, enforced
+server-side regardless of what the client sends), but pinning/editing/
+deleting is deliberately left open to either of you, since it's a shared
+board for two trusted people rather than a multi-tenant app. If you'd
+rather lock edits/deletes to the original author only, that's a one-line
+policy change noted directly in `wall_schema.sql`.
 
 ## Home screen icon
 
@@ -106,10 +131,11 @@ automatically. No manual flag to flip, no date math to keep correct.
 
 ## Navigation
 
-The journey page has a fixed bottom nav with two tabs:
+The journey page has a fixed bottom nav with three tabs:
 
 - **Journey** — header with the streak badge, month tabs, and month content
   (the original page).
+- **Wall** — shared notes, see above.
 - **Profile** — an avatar/name card for whoever's signed in, two live stats
   (days together, since Oct 28, 2025; months logged, just `months.length`),
   and a **Sign out** button.

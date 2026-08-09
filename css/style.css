@@ -569,6 +569,98 @@ button {
   background: var(--pink-bg-2);
 }
 
+/* ---------- wall ---------- */
+
+.note-textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.9rem;
+}
+
+#noteSubmitBtn {
+  width: 100%;
+  justify-content: center;
+}
+
+.wall-section-heading {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 1.25rem 0 0.6rem;
+}
+
+.wall-section-heading:first-child {
+  margin-top: 0;
+}
+
+.note-card {
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+  box-shadow: 3px 3px 0 rgba(43, 10, 18, 0.08);
+}
+
+.note-card.note-color-pink {
+  background: #fff0f3;
+  border: 3px solid #e6394f;
+}
+
+.note-card.note-color-blue {
+  background: #eef5ff;
+  border: 3px solid #2e6fe0;
+}
+
+.note-content {
+  font-size: 1rem;
+  white-space: pre-wrap;
+  margin-bottom: 0.7rem;
+  word-break: break-word;
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.note-author {
+  font-family: 'Baloo 2', cursive;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.note-action-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.2rem;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.note-action-btn.pinned {
+  opacity: 1;
+}
+
 /* ---------- Angelos profile theme (blue) ---------- */
 
 html.theme-blue {

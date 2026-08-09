@@ -8,11 +8,19 @@
 
   const journeyView = document.getElementById('journeyView');
   const profileView = document.getElementById('profileView');
+  const wallView = document.getElementById('wallView');
   const bottomNavBtns = document.querySelectorAll('.bottom-nav-btn');
   const profileAvatar = document.getElementById('profileAvatar');
   const profileName = document.getElementById('profileName');
   const statDays = document.getElementById('statDays');
   const statMonths = document.getElementById('statMonths');
+
+  const noteForm = document.getElementById('noteForm');
+  const noteInput = document.getElementById('noteInput');
+  const noteSubmitBtn = document.getElementById('noteSubmitBtn');
+  const wallEmpty = document.getElementById('wallEmpty');
+  const pinnedNotesEl = document.getElementById('pinnedNotes');
+  const allNotesEl = document.getElementById('allNotes');
 
   const JOURNEY_START = new Date('2025-10-28T00:00:00');
   const CACHE_KEY = 'aa_journey_cache_v1';
@@ -268,14 +276,12 @@
 
   function switchView(view) {
     bottomNavBtns.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
-    if (view === 'profile') {
-      journeyView.classList.add('hidden');
-      profileView.classList.remove('hidden');
-      renderProfileStats();
-    } else {
-      profileView.classList.add('hidden');
-      journeyView.classList.remove('hidden');
-    }
+
+    journeyView.classList.toggle('hidden', view !== 'journey');
+    profileView.classList.toggle('hidden', view !== 'profile');
+    wallView.classList.toggle('hidden', view !== 'wall');
+
+    if (view === 'profile') renderProfileStats();
   }
 
   bottomNavBtns.forEach((btn) => {
@@ -344,10 +350,153 @@
     }
   }
 
+  // ---------------- Wall ----------------
+
+  let wallNotes = [];
+
+  function formatRelativeTime(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function createNoteCard(note) {
+    const card = document.createElement('div');
+    card.className = `note-card note-color-${note.color === 'blue' ? 'blue' : 'pink'}`;
+
+    const content = document.createElement('p');
+    content.className = 'note-content';
+    content.textContent = note.content;
+    card.appendChild(content);
+
+    const meta = document.createElement('div');
+    meta.className = 'note-meta';
+
+    const author = document.createElement('span');
+    author.className = 'note-author';
+    author.textContent = `${note.author_name} · ${formatRelativeTime(note.created_at)}`;
+    meta.appendChild(author);
+
+    const actions = document.createElement('span');
+    actions.className = 'note-actions';
+
+    const pinBtn = document.createElement('button');
+    pinBtn.type = 'button';
+    pinBtn.className = 'note-action-btn' + (note.pinned ? ' pinned' : '');
+    pinBtn.textContent = '📌';
+    pinBtn.title = note.pinned ? 'Unpin' : 'Pin to top';
+    pinBtn.addEventListener('click', () => togglePin(note));
+    actions.appendChild(pinBtn);
+
+    if (note.user_id === currentUser.id) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'note-action-btn';
+      deleteBtn.textContent = '🗑️';
+      deleteBtn.title = 'Delete';
+      deleteBtn.addEventListener('click', () => deleteNote(note.id));
+      actions.appendChild(deleteBtn);
+    }
+
+    meta.appendChild(actions);
+    card.appendChild(meta);
+    return card;
+  }
+
+  function renderWallNotes() {
+    pinnedNotesEl.innerHTML = '';
+    allNotesEl.innerHTML = '';
+
+    wallEmpty.classList.toggle('hidden', wallNotes.length > 0);
+
+    const pinned = wallNotes.filter((n) => n.pinned);
+    const rest = wallNotes.filter((n) => !n.pinned);
+
+    if (pinned.length > 0) {
+      const heading = document.createElement('div');
+      heading.className = 'wall-section-heading';
+      heading.textContent = '📌 Pinned';
+      pinnedNotesEl.appendChild(heading);
+      pinned.forEach((note) => pinnedNotesEl.appendChild(createNoteCard(note)));
+    }
+
+    if (rest.length > 0 && pinned.length > 0) {
+      const heading = document.createElement('div');
+      heading.className = 'wall-section-heading';
+      heading.textContent = 'Everything else';
+      allNotesEl.appendChild(heading);
+    }
+    rest.forEach((note) => allNotesEl.appendChild(createNoteCard(note)));
+  }
+
+  async function loadWallNotes() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient
+      .from('wall_notes')
+      .select('*')
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('Wall load failed:', error);
+      return;
+    }
+    wallNotes = data || [];
+    renderWallNotes();
+  }
+
+  async function togglePin(note) {
+    const { error } = await supabaseClient.from('wall_notes').update({ pinned: !note.pinned }).eq('id', note.id);
+    if (error) console.warn('Pin toggle failed:', error);
+    loadWallNotes();
+  }
+
+  async function deleteNote(id) {
+    if (!confirm('Delete this note?')) return;
+    const { error } = await supabaseClient.from('wall_notes').delete().eq('id', id);
+    if (error) console.warn('Delete failed:', error);
+    loadWallNotes();
+  }
+
+  noteForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = noteInput.value.trim();
+    if (!text) return;
+
+    noteSubmitBtn.disabled = true;
+    const { error } = await supabaseClient.from('wall_notes').insert({
+      user_id: currentUser.id,
+      author_name: displayName,
+      content: text,
+      color: displayName === 'Angelos' ? 'blue' : 'pink',
+    });
+    noteSubmitBtn.disabled = false;
+
+    if (error) {
+      console.warn('Post note failed:', error);
+      return;
+    }
+    noteInput.value = '';
+    loadWallNotes();
+  });
+
+  // Live updates: if the other person posts/pins/deletes a note while
+  // you're both looking at the Wall, it updates without a manual refresh.
+  supabaseClient
+    .channel('wall_notes_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wall_notes' }, () => loadWallNotes())
+    .subscribe();
+
   renderCountdown();
   renderTabs();
   renderPanels();
   setActive(activeIndex);
 
   loadFromSupabase();
+  loadWallNotes();
 })();
