@@ -277,6 +277,7 @@
   function switchView(view) {
     bottomNavBtns.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
 
+    nav.classList.toggle('hidden', view !== 'journey');
     journeyView.classList.toggle('hidden', view !== 'journey');
     profileView.classList.toggle('hidden', view !== 'profile');
     wallView.classList.toggle('hidden', view !== 'wall');

@@ -129,6 +129,23 @@ table — not the `current` column, and not a calendar calculation. Add a new
 month row (e.g. number 12) when that month starts, and the app points at it
 automatically. No manual flag to flip, no date math to keep correct.
 
+## Standalone / home screen behavior
+
+Since `apple-mobile-web-app-capable` makes this launch full-screen (no
+Safari chrome) when opened from the iOS home screen, the page content can
+render directly under the system status bar. `.sticky-header` (wrapping the
+topbar + month nav as one sticky unit) pads itself with
+`env(safe-area-inset-top)`, and the bottom nav / login page already account
+for `env(safe-area-inset-bottom)` — so nothing sits behind the clock/battery
+or the home indicator. The topbar and month-nav are deliberately one sticky
+element rather than two independently-stuck ones with a hardcoded pixel gap
+between them; that hardcoded-offset approach is fragile the moment either
+element's height changes (exactly what broke here). `overscroll-behavior-y:
+none` on `html, body` also stops the iOS rubber-band bounce from revealing
+blank space past the top/bottom edge, and buttons/tabs have
+`user-select: none` so they don't show a text-selection handle on a long
+press — both there to make it read as an app rather than a webpage.
+
 ## Navigation
 
 The journey page has a fixed bottom nav with three tabs:
